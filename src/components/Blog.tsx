@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase.ts';
+import { supabase } from '@/lib/supabase';
 import type { BlogPost } from '@/types';
 import { Newspaper, ChevronDown } from 'lucide-react';
 
