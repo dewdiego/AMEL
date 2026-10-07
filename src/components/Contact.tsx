@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import emailjs from '@emailjs/browser';
 import { COMPANY } from '@/data';
 import { CheckCircle2, AlertCircle, Send, Phone, Mail, MessageCircle } from 'lucide-react';
 
@@ -20,19 +20,24 @@ export default function Contact() {
     setStatus('submitting');
 
     try {
-      const { error: insertError } = await supabase.from('quote_requests').insert({
-        nombre: form.nombre,
-        email: form.email,
-        telefono: form.telefono || null,
-        direccion: form.direccion || null,
-        mensaje: form.mensaje || null,
-      });
-
-      if (insertError) throw insertError;
+      // Reemplaza estos tres valores con tus credenciales reales de EmailJS
+      await emailjs.send(
+        'service_5ek5yi8',
+        'template_z9zzwuh',
+        {
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono || 'No especificado',
+          direccion: form.direccion || 'No especificada',
+          mensaje: form.mensaje || 'Sin mensaje',
+        },
+        '1AfSE-UEasrdqsAPz'
+      );
 
       setStatus('success');
       setForm({ nombre: '', email: '', telefono: '', direccion: '', mensaje: '' });
-    } catch {
+    } catch (error) {
+      console.error('Error al enviar correo:', error);
       setStatus('error');
     }
   };
@@ -118,9 +123,9 @@ export default function Contact() {
                 Mensaje (opcional)
                 <textarea
                   rows={3}
-                    value={form.mensaje}
-                    onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
-                    className="w-full bg-transparent border border-gray-300 rounded-lg py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-900 focus:outline-none transition-colors resize-none"
+                  value={form.mensaje}
+                  onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+                  className="w-full bg-transparent border border-gray-300 rounded-lg py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-900 focus:outline-none transition-colors resize-none"
                 />
               </label>
               <button
