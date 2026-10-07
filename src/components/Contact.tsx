@@ -15,7 +15,7 @@ export default function Contact() {
     mensaje: '',
   });
 
-  const handleSubmit = async (e: FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Intentando enviar formulario..."); // <-- Agrega esta línea
     setStatus('submitting');
