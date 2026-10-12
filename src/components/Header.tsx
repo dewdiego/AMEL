@@ -20,8 +20,11 @@ export default function Header() {
 
   const navItems = [
     { label: 'Servicios', href: '#servicios' },
+    { label: 'Cotizador', href: '#cotizador' },
+    { label: 'Honorarios', href: '#honorarios' },
     { label: 'Promoción', href: '#promo' },
     { label: 'Blog', href: '#blog' },
+    { label: 'FAQ', href: '#faq' },
   ];
 
   return (
@@ -58,9 +61,9 @@ export default function Header() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between py-3.5">
-          <div className="sm:hidden text-white text-sm font-semibold">{COMPANY.name}</div>
+          <div className="lg:hidden text-white text-sm font-semibold">{COMPANY.name}</div>
 
-          <div className="hidden sm:flex items-center gap-8 text-xs font-medium tracking-wide text-white">
+          <div className="hidden lg:flex items-center gap-6 text-xs font-medium tracking-wide text-white">
             {navItems.map((item) => (
               <a
                 key={item.href}
@@ -99,7 +102,7 @@ export default function Header() {
           </div>
 
           <button
-            className="sm:hidden text-white p-2"
+            className="lg:hidden text-white p-2"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Abrir menú"
           >
@@ -109,7 +112,7 @@ export default function Header() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="sm:hidden bg-blue-950 border-t border-white/10 px-5 py-4 flex flex-col gap-3 text-white text-sm">
+          <div className="lg:hidden bg-blue-950 border-t border-white/10 px-5 py-4 flex flex-col gap-3 text-white text-sm">
             {navItems.map((item) => (
               <a key={item.href} href={item.href} onClick={closeAll} className="py-1.5 uppercase tracking-wide hover:text-blue-200 transition-colors">
                 {item.label}

@@ -32,8 +32,11 @@ export default function Footer() {
           <div className="flex flex-col gap-2 text-sm">
             <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Navegación</p>
             <a href="#servicios" className="hover:text-white/80 transition-colors">Servicios</a>
+            <a href="#cotizador" className="hover:text-white/80 transition-colors">Cotizador online</a>
+            <a href="#honorarios" className="hover:text-white/80 transition-colors">Honorarios</a>
             <a href="#promo" className="hover:text-white/80 transition-colors">Promoción</a>
             <a href="#blog" className="hover:text-white/80 transition-colors">Blog</a>
+            <a href="#faq" className="hover:text-white/80 transition-colors">Preguntas frecuentes</a>
             <a href="#contacto" className="hover:text-white/80 transition-colors">Solicitar presupuesto</a>
           </div>
         </div>

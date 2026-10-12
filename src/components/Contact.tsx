@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { COMPANY } from '@/data';
 import { CheckCircle2, AlertCircle, Send, Phone, Mail, MessageCircle } from 'lucide-react';
