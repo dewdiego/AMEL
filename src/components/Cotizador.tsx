@@ -11,6 +11,9 @@ const EMAILJS_PUBLIC_KEY = '1AfSE-UEasrdqsAPz';
 
 type Paso = 'datos' | 'enviando' | 'listo';
 
+// Clases que se muestran en el cotizador (las demás quedan en data.ts para uso futuro)
+const CLASES_VISIBLES = CLASES.filter((c) => ['D', 'C'].includes(c.id));
+
 export default function Cotizador() {
   const [claseId, setClaseId] = useState('C');
   const [unidades, setUnidades] = useState(20);
@@ -22,7 +25,7 @@ export default function Cotizador() {
   const [errorEnvio, setErrorEnvio] = useState(false);
   const [contacto, setContacto] = useState({ nombre: '', email: '', telefono: '', direccion: '' });
 
-  const clase = CLASES.find((c) => c.id === claseId)!;
+  const clase = CLASES_VISIBLES.find((c) => c.id === claseId)!;
   const r = useMemo(() => calcularHonorario(clase, unidades, complementarias), [clase, unidades, complementarias]);
 
   const factorIva = conIva ? 1 + IVA : 1;
@@ -100,7 +103,7 @@ export default function Cotizador() {
                 1. Tipo de edificio
               </legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {CLASES.map((c) => {
+                {CLASES_VISIBLES.map((c) => {
                   const sel = c.id === claseId;
                   return (
                     <button
@@ -120,6 +123,14 @@ export default function Cotizador() {
                   );
                 })}
               </div>
+              <p className="flex gap-2 text-xs text-gray-600 mt-3 leading-relaxed">
+                <Info className="w-4 h-4 flex-shrink-0 text-blue-900" />
+                <span>
+                  ¿Tu edificio tiene amenities, servicios centrales u otras prestaciones? Tenemos honorarios
+                  para otros tipos de consorcio.{' '}
+                  <a href="#contacto" className="text-blue-900 font-semibold underline">Consultanos por un presupuesto a medida</a>.
+                </span>
+              </p>
             </fieldset>
 
             <fieldset disabled={paso === 'enviando'}>
