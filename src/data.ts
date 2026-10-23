@@ -4,7 +4,7 @@ export const COMPANY = {
   phone: '11 2848-4488',
   phoneHref: 'tel:+5491128484488',
   whatsapp: 'https://wa.me/5491128484488',
-  email: 'amel.consorcios@gmail.com',
+  email: 'contacto@grupoamel.com.ar',
   address: 'Ciudad Autónoma de Buenos Aires',
 };
 
