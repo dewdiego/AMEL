@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal del propietario · Grupo Amel</title>
+<meta name="description" content="Consultá tus expensas y comunicados de tu consorcio">
+<meta name="theme-color" content="#14b8a6">
+<link rel="manifest" href="/portal/manifest.webmanifest">
+<link rel="icon" href="/portal/icon-192.png">
+<link rel="apple-touch-icon" href="/portal/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Grupo Amel">
+<style>
+  :root { --teal:#14b8a6; --teal-d:#0d9488; --navy:#1e2a4a; --bg:#f1f5f9; --card:#fff; --txt:#1e293b; --mut:#64748b; --line:#e2e8f0; --red:#dc2626; --green:#059669; --amber:#d97706; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; }
+  header { background:var(--teal); color:#fff; padding:calc(14px + env(safe-area-inset-top)) 18px 14px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:5; }
+  header img { width:34px; height:34px; border-radius:8px; }
+  header h1 { font-size:16px; margin:0; font-weight:700; }
+  header small { display:block; font-size:11px; opacity:.9; font-weight:400; }
+  header .spacer { flex:1; }
+  header button { background:rgba(255,255,255,.18); color:#fff; border:0; border-radius:8px; padding:6px 10px; font-size:12px; }
+  main { padding:16px; max-width:560px; margin:0 auto; padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+  .card h2 { font-size:15px; margin:0 0 4px; color:var(--navy); }
+  .card h3 { font-size:13px; margin:14px 0 6px; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
+  .mut { color:var(--mut); font-size:13px; }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .row:last-child { border-bottom:0; }
+  .row b { font-size:15px; }
+  .big { font-size:26px; font-weight:800; color:var(--navy); letter-spacing:-.02em; }
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; background:#f1f5f9; color:var(--mut); }
+  .pill.ok { background:#d1fae5; color:var(--green); } .pill.deuda { background:#fee2e2; color:var(--red); } .pill.parcial { background:#fef3c7; color:var(--amber); }
+  button.primary, a.primary { display:block; width:100%; text-align:center; background:var(--teal); color:#fff; border:0; border-radius:10px; padding:13px; font-size:15px; font-weight:600; text-decoration:none; cursor:pointer; }
+  button.primary:disabled { opacity:.5; }
+  button.ghost { display:block; width:100%; background:#fff; color:var(--teal-d); border:1px solid var(--line); border-radius:10px; padding:11px; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px; }
+  input { width:100%; padding:13px 14px; font-size:16px; border:1px solid var(--line); border-radius:10px; margin:6px 0 12px; }
+  input.code { letter-spacing:.4em; text-align:center; font-size:24px; font-weight:700; }
+  label { font-size:13px; color:var(--mut); font-weight:600; }
+  .msg { font-size:13px; padding:10px 12px; border-radius:10px; margin:10px 0; }
+  .msg.err { background:#fee2e2; color:#991b1b; } .msg.ok { background:#d1fae5; color:#065f46; } .msg.info { background:#e0f2fe; color:#075985; }
+  .com { padding:12px 0; border-bottom:1px solid var(--line); }
+  .com:last-child { border-bottom:0; }
+  .com .t { font-weight:700; font-size:14px; color:var(--navy); }
+  .com .d { font-size:12px; color:var(--mut); margin:2px 0 6px; }
+  .com .c { font-size:14px; white-space:pre-wrap; line-height:1.45; }
+  .com a { color:var(--teal-d); font-size:13px; font-weight:600; }
+  .tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .tabs button { flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; font-size:13px; font-weight:600; color:var(--mut); }
+  .tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .hidden { display:none !important; }
+  .spin { width:28px; height:28px; border:3px solid var(--line); border-top-color:var(--teal); border-radius:50%; animation:s 1s linear infinite; margin:30px auto; }
+  @keyframes s { to { transform:rotate(360deg); } }
+  .logo { width:72px; height:72px; border-radius:18px; margin:18px auto 10px; display:block; }
+  .center { text-align:center; }
+</style>
+</head>
+<body>
+<header>
+  <img src="/portal/icon-192.png" alt="">
+  <h1>Grupo Amel<small id="hdr-sub">Portal del propietario</small></h1>
+  <div class="spacer"></div>
+  <button id="btn-salir" class="hidden">Salir</button>
+</header>
+
+<main>
+  <!-- Carga -->
+  <div id="v-cargando"><div class="spin"></div></div>
+
+  <!-- Ingreso -->
+  <section id="v-login" class="hidden">
+    <img class="logo" src="/portal/icon-192.png" alt="">
+    <div class="card">
+      <h2 class="center">Ingresá con tu mail</h2>
+      <p class="mut center">El mismo que tiene registrado la administración.</p>
+      <div id="paso-mail">
+        <label>Tu mail</label>
+        <input id="in-mail" type="email" inputmode="email" autocomplete="email" placeholder="nombre@mail.com">
+        <button id="btn-codigo" class="primary">Enviarme el código</button>
+      </div>
+      <div id="paso-codigo" class="hidden">
+        <p class="mut">Te mandamos un código de 6 dígitos a <b id="mail-dest"></b>. Puede tardar un minuto; revisá spam.</p>
+        <label>Código</label>
+        <input id="in-codigo" class="code" inputmode="numeric" maxlength="6" placeholder="······">
+        <button id="btn-entrar" class="primary">Entrar</button>
+        <button id="btn-otro" class="ghost">Usar otro mail</button>
+      </div>
+      <div id="login-msg"></div>
+    </div>
+  </section>
+
+  <!-- Home -->
+  <section id="v-home" class="hidden">
+    <div class="tabs">
+      <button data-tab="expensas" class="on">Expensas</button>
+      <button data-tab="comunicados">Comunicados</button>
+      <button data-tab="avisos">Avisos</button>
+    </div>
+    <div id="tab-expensas"></div>
+    <div id="tab-comunicados" class="hidden"></div>
+    <div id="tab-avisos" class="hidden">
+      <div class="card">
+        <h2>Notificaciones en el celular</h2>
+        <p class="mut">Recibí al instante cuando se publican las expensas o un comunicado, sin depender del mail.</p>
+        <div id="avisos-estado" class="msg info"></div>
+        <div id="ios-ayuda" class="msg info hidden">En iPhone, primero agregá el portal a la pantalla de inicio: botón <b>Compartir</b> → <b>Agregar a inicio</b>. Después abrilo desde ahí y activá las notificaciones.</div>
+        <button id="btn-push" class="primary">Activar notificaciones</button>
+        <button id="btn-push-off" class="ghost hidden">Desactivar en este dispositivo</button>
+        <button id="btn-instalar" class="ghost hidden">Instalar la app</button>
+      </div>
+      <div class="card" id="card-admin"></div>
+    </div>
+  </section>
+</main>
+
+<script src="/portal/config.js"></script>
+<script type="module" src="/portal/app.js"></script>
+</body>
+</html>
