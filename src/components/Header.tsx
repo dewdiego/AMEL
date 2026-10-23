@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, Mail, ChevronDown, Building2 } from 'lucide-react';
+import { Menu, X, Phone, Mail, ChevronDown, Building2, UserCircle } from 'lucide-react';
 import { COMPANY } from '@/data';
 
 export default function Header() {
@@ -99,6 +99,12 @@ export default function Header() {
             >
               Solicitar presupuesto
             </a>
+            <a
+              href="/portal/"
+              className="flex items-center gap-1.5 bg-teal-500 text-white px-5 py-2.5 rounded-md font-bold text-xs uppercase hover:bg-teal-400 transition-colors"
+            >
+              <UserCircle className="w-4 h-4" /> Acceso propietarios
+            </a>
           </div>
 
           <button
@@ -118,6 +124,9 @@ export default function Header() {
                 {item.label}
               </a>
             ))}
+            <a href="/portal/" onClick={closeAll} className="flex items-center justify-center gap-2 bg-teal-500 text-white py-2.5 rounded-md font-bold uppercase tracking-wide">
+              <UserCircle className="w-4 h-4" /> Acceso propietarios
+            </a>
             <div className="border-t border-white/10 pt-3 flex flex-col gap-2">
               <a href="#contacto" onClick={closeAll} className="py-1.5 uppercase tracking-wide hover:text-blue-200">Pedir presupuesto</a>
               <a href={COMPANY.whatsapp} target="_blank" rel="noopener" onClick={closeAll} className="py-1.5 hover:text-blue-200">WhatsApp</a>
