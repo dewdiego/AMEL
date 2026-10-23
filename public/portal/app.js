@@ -129,12 +129,37 @@ document.querySelectorAll('.tabs button').forEach((b) => b.onclick = () => {
 });
 
 // ---------------- Instalación y push ----------------
-let promptInstalar = null;
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); promptInstalar = e; $('btn-instalar').classList.remove('hidden'); });
-$('btn-instalar').onclick = async () => { if (promptInstalar) { promptInstalar.prompt(); promptInstalar = null; $('btn-instalar').classList.add('hidden'); } };
-
 const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
 const instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+let promptInstalar = null;
+const ocultoInstalar = () => { try { return localStorage.getItem('instalar_cerrado') === '1'; } catch { return false; } };
+const mostrarFranja = () => { if (!instalada && !ocultoInstalar()) $('instalar').classList.remove('hidden'); };
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); promptInstalar = e;
+  $('btn-instalar').classList.remove('hidden');
+  mostrarFranja();
+});
+// iPhone: no hay botón de instalación, se explica el camino
+if (esIOS && !instalada) {
+  $('instalar-txt').textContent = 'Tocá Compartir y después "Agregar a inicio".';
+  $('instalar-btn').textContent = 'Cómo';
+  mostrarFranja();
+}
+const instalar = async () => {
+  if (promptInstalar) {
+    promptInstalar.prompt();
+    const { outcome } = await promptInstalar.userChoice.catch(() => ({ outcome: 'dismissed' }));
+    promptInstalar = null;
+    if (outcome === 'accepted') { $('instalar').classList.add('hidden'); $('btn-instalar').classList.add('hidden'); }
+  } else if (esIOS) {
+    alert('En iPhone: tocá el botón Compartir (el cuadrado con la flecha), elegí "Agregar a inicio" y confirmá. Después abrí la app desde ahí.');
+  }
+};
+$('instalar-btn').onclick = instalar;
+$('btn-instalar').onclick = instalar;
+$('instalar-x').onclick = () => { $('instalar').classList.add('hidden'); try { localStorage.setItem('instalar_cerrado', '1'); } catch { /* noop */ } };
+window.addEventListener('appinstalled', () => { $('instalar').classList.add('hidden'); $('btn-instalar').classList.add('hidden'); });
 let swReg = null;
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/portal/sw.js').then((r) => { swReg = r; }).catch(() => {});
 
