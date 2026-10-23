@@ -51,7 +51,7 @@ $('btn-codigo').onclick = async () => {
 };
 $('btn-entrar').onclick = async () => {
   const token = $('in-codigo').value.replace(/\D/g, '');
-  if (token.length !== 6) return msg($('login-msg'), 'El código tiene 6 dígitos.');
+  if (token.length < 6 || token.length > 10) return msg($('login-msg'), 'Ingresá el código completo que te llegó por mail.');
   $('btn-entrar').disabled = true; msg($('login-msg'), '');
   const { error } = await sb.auth.verifyOtp({ email: mailActual, token, type: 'email' });
   $('btn-entrar').disabled = false;
@@ -59,7 +59,7 @@ $('btn-entrar').onclick = async () => {
   await cargarHome();
 };
 $('btn-otro').onclick = () => { $('paso-codigo').classList.add('hidden'); $('paso-mail').classList.remove('hidden'); msg($('login-msg'), ''); };
-$('in-codigo').addEventListener('input', (e) => { if (e.target.value.replace(/\D/g, '').length === 6) $('btn-entrar').click(); });
+$('in-codigo').addEventListener('input', (e) => { if (e.target.value.replace(/\D/g, '').length === 8) $('btn-entrar').click(); });
 $('btn-salir').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
 // ---------------- Home ----------------
