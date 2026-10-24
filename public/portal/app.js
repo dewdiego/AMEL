@@ -14,13 +14,17 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 const periodo = (p) => { const [y, m] = p.split('-'); return `${MESES[Number(m) - 1]} ${y}`; };
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+/** Corta una promesa que no responde (red caída, lock de sesión trabado) para que el portal nunca quede en blanco */
+const conTimeout = (p, ms, texto = 'El servidor tardó demasiado en responder. Revisá tu conexión y volvé a intentar.') =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(texto)), ms))]);
+
 const vista = (v) => { for (const id of ['v-cargando', 'v-login', 'v-home']) $(id).classList.toggle('hidden', id !== v); $('btn-salir').classList.toggle('hidden', v !== 'v-home'); };
 const msg = (el, texto, tipo = 'err') => { el.innerHTML = texto ? `<div class="msg ${tipo}">${texto}</div>` : ''; };
 
 /** Llama a la Edge Function "portal" con la sesión actual */
 async function portal(body) {
-  const { data: { session } } = await sb.auth.getSession();
-  const { data, error } = await sb.functions.invoke('portal', { body, headers: session ? { Authorization: `Bearer ${session.access_token}` } : {} });
+  const { data: { session } } = await conTimeout(sb.auth.getSession(), 8000);
+  const { data, error } = await conTimeout(sb.functions.invoke('portal', { body, headers: session ? { Authorization: `Bearer ${session.access_token}` } : {} }), 25000);
   if (error) {
     let detalle = '';
     try { detalle = await error.context?.text(); } catch { /* noop */ }
@@ -69,14 +73,18 @@ async function cargarHome() {
   try {
     datos = await portal({ accion: 'mis-datos' });
   } catch (e) {
-    await sb.auth.signOut();
-    vista('v-login'); msg($('login-msg'), e.message);
+    // Sesión vencida o sin permiso: se cierra. Problema de red: se mantiene la sesión para reintentar.
+    const esRed = /tard|conect|fetch|network/i.test(e.message);
+    if (!esRed) await sb.auth.signOut().catch(() => {});
+    vista('v-login'); msg($('login-msg'), esRed ? `${e.message} <button class="ghost" id="btn-reintentar" style="margin-top:10px">Reintentar</button>` : e.message);
+    if (esRed) { $('paso-mail').classList.add('hidden'); $('btn-reintentar').onclick = () => { $('paso-mail').classList.remove('hidden'); cargarHome(); }; }
     return;
   }
   $('hdr-sub').textContent = datos.email;
   renderExpensas(); renderComunicados(); renderAdmin();
-  await estadoPush();
   vista('v-home');
+  // El estado de las notificaciones se consulta aparte: si el service worker tarda, no bloquea la pantalla
+  estadoPush().catch(() => {});
 }
 
 function renderExpensas() {
@@ -173,8 +181,11 @@ async function estadoPush() {
     $('btn-push').classList.add('hidden');
     return;
   }
-  const reg = swReg || await navigator.serviceWorker.ready;
-  const sub = await reg.pushManager.getSubscription();
+  let sub = null;
+  try {
+    const reg = swReg || await conTimeout(navigator.serviceWorker.ready, 5000);
+    sub = await conTimeout(reg.pushManager.getSubscription(), 5000);
+  } catch { /* sin service worker: se muestra como no activadas */ }
   const activas = Notification.permission === 'granted' && !!sub;
   est.textContent = activas ? 'Notificaciones activadas en este dispositivo.' : datos.dispositivos > 0 ? `Tenés avisos activos en ${datos.dispositivos} dispositivo(s), pero no en este.` : 'Todavía no activaste las notificaciones.';
   est.className = `msg ${activas ? 'ok' : 'info'}`;
@@ -206,8 +217,20 @@ $('btn-push-off').onclick = async () => {
 };
 
 // ---------------- Arranque ----------------
-(async () => {
+async function arrancar() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { vista('v-login'); msg($('login-msg'), 'El portal no está configurado (faltan las variables de Supabase en el build).'); return; }
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) await cargarHome(); else vista('v-login');
-})();
+  try {
+    const { data: { session } } = await conTimeout(sb.auth.getSession(), 8000);
+    if (session) await cargarHome(); else vista('v-login');
+  } catch (e) {
+    vista('v-login'); msg($('login-msg'), e.message);
+  }
+}
+arrancar();
+
+// Al volver a la app después de un rato (celular en segundo plano), se refrescan los datos si la sesión sigue viva
+let ultimaCarga = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !datos) return;
+  if (Date.now() - ultimaCarga > 5 * 60 * 1000) { ultimaCarga = Date.now(); cargarHome(); }
+});
