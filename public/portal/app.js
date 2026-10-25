@@ -81,7 +81,8 @@ async function cargarHome() {
     return;
   }
   $('hdr-sub').textContent = datos.email;
-  renderExpensas(); renderComunicados(); renderAdmin();
+  // Cada parte se dibuja por separado: si una falla (por ejemplo, versión vieja de la pantalla en caché), las otras se ven igual
+  for (const fn of [renderExpensas, renderComunicados, renderAdmin]) { try { fn(); } catch (e) { console.error(e); } }
   vista('v-home');
   // El estado de las notificaciones se consulta aparte: si el service worker tarda, no bloquea la pantalla
   estadoPush().catch(() => {});
@@ -126,7 +127,8 @@ function renderComunicados() {
 const CAT_TEL = { emergencias: 'Emergencias', servicios: 'Servicios', encargado: 'Encargado', consejo: 'Consejo de propietarios', proveedor: 'Proveedores', otros: 'Otros' };
 function renderAdmin() {
   const a = datos.administracion || {};
-  const el = $('tab-info');
+  const el = $('tab-info') || $('card-admin');
+  if (!el) return;
   let html = `<div class="card"><h2>${esc(a.nombre || 'Administración')}</h2>
     ${a.telefono ? `<div class="row"><span class="mut">Teléfono</span><a href="tel:${esc(a.telefono)}">${esc(a.telefono)}</a></div>` : ''}
     ${a.email ? `<div class="row"><span class="mut">Mail</span><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></div>` : ''}
@@ -231,6 +233,13 @@ $('btn-push-off').onclick = async () => {
 // ---------------- Arranque ----------------
 async function arrancar() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { vista('v-login'); msg($('login-msg'), 'El portal no está configurado (faltan las variables de Supabase en el build).'); return; }
+  // Red de seguridad: si por lo que sea sigue "pensando" a los 20 s, se muestra el ingreso con un botón para recargar
+  setTimeout(() => {
+    if (!$('v-cargando').classList.contains('hidden')) {
+      vista('v-login');
+      msg($('login-msg'), 'El portal tardó demasiado en cargar. <button class="ghost" onclick="location.reload()" style="margin-top:10px">Recargar</button>');
+    }
+  }, 20000);
   try {
     const { data: { session } } = await conTimeout(sb.auth.getSession(), 8000);
     if (session) await cargarHome(); else vista('v-login');

@@ -1,6 +1,10 @@
 // Service worker del portal: recibe las notificaciones push y abre el portal al tocarlas.
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+const CACHE = 'portal-v3';
+// Al activarse una versión nueva, se borran las cachés viejas para que no convivan pantalla vieja y código nuevo
+self.addEventListener('activate', (e) => e.waitUntil(
+  caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+));
 
 self.addEventListener('push', (event) => {
   let data = { title: 'Grupo Amel', body: 'Tenés una novedad de tu consorcio', url: '/portal/' };
@@ -20,12 +24,22 @@ self.addEventListener('notificationclick', (event) => {
   }));
 });
 
-// Cache mínimo para que la app abra sin conexión (la pantalla; los datos siempre vienen del servidor)
-const CACHE = 'portal-v1';
+// Cache mínimo para que la app abra sin conexión (la pantalla; los datos siempre vienen del servidor).
+// Siempre red primero con un límite de 8 s; la caché sólo si no hay red.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || !req.url.includes('/portal/')) return;
-  event.respondWith(fetch(req).then((res) => {
-    const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res;
-  }).catch(() => caches.match(req)));
+  event.respondWith((async () => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(req, { signal: ctrl.signal, cache: 'no-cache' });
+      clearTimeout(t);
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+      return res;
+    } catch {
+      clearTimeout(t);
+      return (await caches.match(req)) || Response.error();
+    }
+  })());
 });
