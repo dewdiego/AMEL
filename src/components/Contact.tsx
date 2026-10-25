@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { COMPANY } from '@/data';
+import { abrirMail } from '@/lib-mail';
 import { CheckCircle2, AlertCircle, Send, Phone, Mail, MessageCircle } from 'lucide-react';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -164,7 +165,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                   <span className="text-xl font-bold">{COMPANY.phone}</span>
                 </a>
-                <a href={`mailto:${COMPANY.email}`} className="flex items-center gap-3 group">
+                <a href={`mailto:${COMPANY.email}`} onClick={(e) => { e.preventDefault(); abrirMail(COMPANY.email); }} className="flex items-center gap-3 group">
                   <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                     <Mail className="w-5 h-5 text-white" />
                   </div>

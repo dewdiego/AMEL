@@ -1,5 +1,6 @@
 import { Building2, Phone, Mail } from 'lucide-react';
 import { COMPANY } from '@/data';
+import { abrirMail } from '@/lib-mail';
 
 export default function Footer() {
   return (
@@ -25,7 +26,7 @@ export default function Footer() {
             <a href={COMPANY.phoneHref} className="flex items-center gap-2 hover:text-white/80 transition-colors">
               <Phone className="w-4 h-4" /> {COMPANY.phone}
             </a>
-            <a href={`mailto:${COMPANY.email}`} className="flex items-center gap-2 hover:text-white/80 transition-colors break-all">
+            <a href={`mailto:${COMPANY.email}`} onClick={(e) => { e.preventDefault(); abrirMail(COMPANY.email); }} className="flex items-center gap-2 hover:text-white/80 transition-colors break-all">
               <Mail className="w-4 h-4" /> {COMPANY.email}
             </a>
           </div>

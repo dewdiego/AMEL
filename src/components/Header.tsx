@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Phone, Mail, ChevronDown, Building2, UserCircle } from 'lucide-react';
 import { COMPANY } from '@/data';
+import { abrirMail } from '@/lib-mail';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,7 +46,7 @@ export default function Header() {
             <a href={COMPANY.phoneHref} className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
               <Phone className="w-3.5 h-3.5" /> {COMPANY.phone}
             </a>
-            <a href={`mailto:${COMPANY.email}`} className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
+            <a href={`mailto:${COMPANY.email}`} onClick={(e) => { e.preventDefault(); abrirMail(COMPANY.email); }} className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
               <Mail className="w-3.5 h-3.5" /> {COMPANY.email}
             </a>
           </div>
@@ -88,7 +89,7 @@ export default function Header() {
                     <a href="#contacto" onClick={closeAll} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">Pedir presupuesto</a>
                     <a href={COMPANY.whatsapp} target="_blank" rel="noopener" onClick={closeAll} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">WhatsApp</a>
                     <a href={COMPANY.phoneHref} onClick={closeAll} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">Llamar</a>
-                    <a href={`mailto:${COMPANY.email}`} onClick={closeAll} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">Email</a>
+                    <a href={`mailto:${COMPANY.email}`} onClick={(e) => { e.preventDefault(); closeAll(); abrirMail(COMPANY.email); }} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">Email</a>
                   </div>
                 </>
               )}
@@ -131,7 +132,7 @@ export default function Header() {
               <a href="#contacto" onClick={closeAll} className="py-1.5 uppercase tracking-wide hover:text-blue-200">Pedir presupuesto</a>
               <a href={COMPANY.whatsapp} target="_blank" rel="noopener" onClick={closeAll} className="py-1.5 hover:text-blue-200">WhatsApp</a>
               <a href={COMPANY.phoneHref} onClick={closeAll} className="py-1.5 hover:text-blue-200">{COMPANY.phone}</a>
-              <a href={`mailto:${COMPANY.email}`} onClick={closeAll} className="py-1.5 hover:text-blue-200">{COMPANY.email}</a>
+              <a href={`mailto:${COMPANY.email}`} onClick={(e) => { e.preventDefault(); closeAll(); abrirMail(COMPANY.email); }} className="py-1.5 hover:text-blue-200">{COMPANY.email}</a>
             </div>
           </div>
         )}
