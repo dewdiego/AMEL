@@ -123,17 +123,29 @@ function renderComunicados() {
     </div>`).join('')}</div>`;
 }
 
+const CAT_TEL = { emergencias: 'Emergencias', servicios: 'Servicios', encargado: 'Encargado', consejo: 'Consejo de propietarios', proveedor: 'Proveedores', otros: 'Otros' };
 function renderAdmin() {
   const a = datos.administracion || {};
-  $('card-admin').innerHTML = `<h2>${esc(a.nombre || 'Administración')}</h2>
+  const el = $('tab-info');
+  let html = `<div class="card"><h2>${esc(a.nombre || 'Administración')}</h2>
     ${a.telefono ? `<div class="row"><span class="mut">Teléfono</span><a href="tel:${esc(a.telefono)}">${esc(a.telefono)}</a></div>` : ''}
-    ${a.email ? `<div class="row"><span class="mut">Mail</span><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></div>` : ''}`;
+    ${a.email ? `<div class="row"><span class="mut">Mail</span><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></div>` : ''}
+    ${a.direccion ? `<div class="row"><span class="mut">Dirección</span><span>${esc(a.direccion)}</span></div>` : ''}
+    ${a.horario_atencion ? `<div class="row"><span class="mut">Atención</span><span>${esc(a.horario_atencion)}</span></div>` : ''}</div>`;
+  for (const i of datos.info || []) html += `<div class="card info"><h2>${esc(i.titulo)}</h2>${i.consorcio ? `<div class="mut" style="margin-bottom:6px">${esc(i.consorcio)}</div>` : ''}<div class="c">${esc(i.contenido)}</div></div>`;
+  const tels = datos.telefonos || [];
+  if (tels.length) {
+    const grupos = {};
+    for (const t of tels) (grupos[t.categoria] ||= []).push(t);
+    html += `<div class="card"><h2>Teléfonos útiles</h2>${Object.entries(grupos).map(([cat, ts]) => `<h3>${esc(CAT_TEL[cat] || cat)}</h3>${ts.map((t) => `<div class="tel"><div><b>${esc(t.nombre)}</b>${t.consorcio ? `<small>${esc(t.consorcio)}</small>` : ''}${t.notas ? `<small>${esc(t.notas)}</small>` : ''}</div><a href="tel:${esc(t.telefono.replace(/\s/g, ''))}">${esc(t.telefono)}</a></div>`).join('')}`).join('')}</div>`;
+  }
+  el.innerHTML = html;
 }
 
 // ---------------- Tabs ----------------
 document.querySelectorAll('.tabs button').forEach((b) => b.onclick = () => {
   document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
-  for (const t of ['expensas', 'comunicados', 'avisos']) $(`tab-${t}`).classList.toggle('hidden', t !== b.dataset.tab);
+  for (const t of ['expensas', 'comunicados', 'info', 'avisos']) $(`tab-${t}`).classList.toggle('hidden', t !== b.dataset.tab);
 });
 
 // ---------------- Instalación y push ----------------

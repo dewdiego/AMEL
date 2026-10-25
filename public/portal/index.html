@@ -61,6 +61,11 @@
   .instalar button { background:var(--teal); color:#fff; border:0; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; white-space:nowrap; }
   .instalar .cerrar { background:transparent; color:#fff; opacity:.7; padding:6px; font-size:18px; line-height:1; }
   .center { text-align:center; }
+  .info .c { font-size:14px; white-space:pre-wrap; line-height:1.45; }
+  .tel { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .tel:last-child { border-bottom:0; }
+  .tel a { background:var(--teal); color:#fff; text-decoration:none; border-radius:8px; padding:6px 12px; font-size:13px; font-weight:600; white-space:nowrap; }
+  .tel small { display:block; color:var(--mut); font-size:12px; }
 </style>
 </head>
 <body>
@@ -110,10 +115,12 @@
     <div class="tabs">
       <button data-tab="expensas" class="on">Expensas</button>
       <button data-tab="comunicados">Comunicados</button>
+      <button data-tab="info">Info útil</button>
       <button data-tab="avisos">Avisos</button>
     </div>
     <div id="tab-expensas"></div>
     <div id="tab-comunicados" class="hidden"></div>
+    <div id="tab-info" class="hidden"></div>
     <div id="tab-avisos" class="hidden">
       <div class="card">
         <h2>Notificaciones en el celular</h2>
@@ -124,7 +131,6 @@
         <button id="btn-push-off" class="ghost hidden">Desactivar en este dispositivo</button>
         <button id="btn-instalar" class="ghost hidden">Instalar la app</button>
       </div>
-      <div class="card" id="card-admin"></div>
     </div>
   </section>
 </main>
