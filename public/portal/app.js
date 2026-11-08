@@ -106,10 +106,20 @@ function renderExpensas() {
             ${Number(c.intereses) ? `<div class="row"><span class="mut">Intereses</span><b>${fmt(c.intereses)}</b></div>` : ''}
           ` : '<p class="mut">Tu cupón todavía no está disponible.</p>'}
           ${e.pdf_url ? `<a class="primary" style="margin-top:12px" href="${e.pdf_url}" target="_blank" rel="noopener">Ver liquidación (PDF)</a>` : ''}
+          ${e.gastos?.length ? `<button class="ghost" data-gastos="${u.id}">Ver gastos y facturas (${e.gastos.length})</button>
+          <div id="gastos-${u.id}" class="hidden" style="margin-top:8px">
+            ${e.gastos.map((g) => `<div class="row" style="align-items:flex-start"><div style="flex:1"><div>${esc(g.descripcion)}</div><small class="mut">${esc(g.rubro || '')}${g.proveedor ? ` · ${esc(g.proveedor)}` : ''}${g.comprobante ? ` · ${esc(g.tipo_comprobante || '')} ${esc(g.comprobante)}` : ''}</small>${g.factura_url ? `<br><a href="${g.factura_url}" target="_blank" rel="noopener">📄 Ver factura</a>` : ''}</div><b>${fmt(g.monto)}</b></div>`).join('')}
+            <div class="row"><span class="mut">Total gastos del período</span><b>${fmt(e.gastos.reduce((a, g) => a + Number(g.monto), 0))}</b></div>
+          </div>` : ''}
+          ${e.url_comprobantes ? `<a class="ghost" style="text-align:center;text-decoration:none" href="${esc(e.url_comprobantes)}" target="_blank" rel="noopener">📁 Carpeta de comprobantes</a>` : ''}
         ` : '<p class="mut">Todavía no hay expensas publicadas.</p>'}
         ${u.pagos?.length ? `<h3>Últimos pagos</h3>${u.pagos.map((p) => `<div class="row"><span class="mut">${fdate(p.fecha)} · ${esc(p.metodo)}</span><b>${fmt(p.monto)}</b></div>`).join('')}` : ''}
       </div>`);
   }
+  el.querySelectorAll('[data-gastos]').forEach((b) => b.addEventListener('click', () => {
+    const d = $(`gastos-${b.dataset.gastos}`); d.classList.toggle('hidden');
+    b.textContent = d.classList.contains('hidden') ? b.textContent.replace('Ocultar', 'Ver') : b.textContent.replace('Ver', 'Ocultar');
+  }));
 }
 
 function renderComunicados() {
