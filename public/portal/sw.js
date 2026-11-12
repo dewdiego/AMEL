@@ -1,13 +1,13 @@
 // Service worker del portal: recibe las notificaciones push y abre el portal al tocarlas.
 self.addEventListener('install', () => self.skipWaiting());
-const CACHE = 'portal-v5';
+const CACHE = 'portal-v6';
 // Al activarse una versión nueva, se borran las cachés viejas para que no convivan pantalla vieja y código nuevo
 self.addEventListener('activate', (e) => e.waitUntil(
   caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
 ));
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'Grupo Amel', body: 'Tenés una novedad de tu consorcio', url: '/portal/' };
+  let data = { title: 'Gestión Íntegra', body: 'Tenés una novedad de tu consorcio', url: '/portal/' };
   try { data = { ...data, ...event.data.json() }; } catch { if (event.data) data.body = event.data.text(); }
   event.waitUntil(self.registration.showNotification(data.title, {
     body: data.body, icon: '/portal/icon-192.png', badge: '/portal/icon-192.png',

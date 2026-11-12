@@ -1,4 +1,4 @@
-// Portal del propietario · Grupo Amel
+// Portal del propietario · Gestión Íntegra 4.0
 // La URL y la anon key de Supabase vienen de config.js, que se genera en el build con las variables de Cloudflare
 // (VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY). Así no quedan en el repositorio.
 const SUPABASE_URL = window.PORTAL_CONFIG?.url || '';
