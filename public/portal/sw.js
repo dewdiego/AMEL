@@ -1,6 +1,6 @@
 // Service worker del portal: recibe las notificaciones push y abre el portal al tocarlas.
 self.addEventListener('install', () => self.skipWaiting());
-const CACHE = 'portal-v4';
+const CACHE = 'portal-v5';
 // Al activarse una versión nueva, se borran las cachés viejas para que no convivan pantalla vieja y código nuevo
 self.addEventListener('activate', (e) => e.waitUntil(
   caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),

@@ -50,6 +50,9 @@
   .tabs { display:flex; gap:6px; margin-bottom:14px; }
   .tabs button { flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; font-size:13px; font-weight:600; color:var(--mut); }
   .tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .tabs button .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--red); margin-left:4px; vertical-align:middle; }
+  textarea { width:100%; padding:10px 12px; font-size:15px; border:1px solid var(--line); border-radius:10px; margin:6px 0 8px; font-family:inherit; }
+  .trab { border-top:1px solid var(--line); padding:12px 0; } .trab:first-child { border-top:0; padding-top:0; }
   .hidden { display:none !important; }
   .spin { width:28px; height:28px; border:3px solid var(--line); border-top-color:var(--teal); border-radius:50%; animation:s 1s linear infinite; margin:30px auto; }
   @keyframes s { to { transform:rotate(360deg); } }
@@ -115,11 +118,13 @@
     <div class="tabs">
       <button data-tab="expensas" class="on">Expensas</button>
       <button data-tab="comunicados">Comunicados</button>
+      <button data-tab="trabajos" id="tab-btn-trabajos" class="hidden">Trabajos</button>
       <button data-tab="info">Info útil</button>
       <button data-tab="avisos">Avisos</button>
     </div>
     <div id="tab-expensas"></div>
     <div id="tab-comunicados" class="hidden"></div>
+    <div id="tab-trabajos" class="hidden"></div>
     <div id="tab-info" class="hidden"></div>
     <div id="tab-avisos" class="hidden">
       <div class="card">
@@ -135,7 +140,7 @@
   </section>
 </main>
 
-<script src="/portal/config.js?v=4"></script>
-<script type="module" src="/portal/app.js?v=4"></script>
+<script src="/portal/config.js?v=5"></script>
+<script type="module" src="/portal/app.js?v=5"></script>
 </body>
 </html>

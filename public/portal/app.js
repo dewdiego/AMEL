@@ -82,7 +82,7 @@ async function cargarHome() {
   }
   $('hdr-sub').textContent = datos.email;
   // Cada parte se dibuja por separado: si una falla (por ejemplo, versión vieja de la pantalla en caché), las otras se ven igual
-  for (const fn of [renderExpensas, renderComunicados, renderAdmin]) { try { fn(); } catch (e) { console.error(e); } }
+  for (const fn of [renderExpensas, renderComunicados, renderTrabajos, renderAdmin]) { try { fn(); } catch (e) { console.error(e); } }
   vista('v-home');
   // El estado de las notificaciones se consulta aparte: si el service worker tarda, no bloquea la pantalla
   estadoPush().catch(() => {});
@@ -134,6 +134,43 @@ function renderComunicados() {
     </div>`).join('')}</div>`;
 }
 
+const EST_TRAB = { avisado: ['Programado', ''], realizado: ['Realizado · esperando tu confirmación', 'parcial'], confirmado: ['Confirmado', 'ok'], observado: ['Observado', 'deuda'], cerrado: ['Cerrado', ''] };
+function renderTrabajos() {
+  const el = $('tab-trabajos'); const btn = $('tab-btn-trabajos');
+  const ts = datos.trabajos || [];
+  if (!el || !btn) return;
+  btn.classList.toggle('hidden', ts.length === 0);
+  const pend = ts.filter((t) => t.estado === 'realizado' || (t.monto > 0 && t.saldo > 0.01)).length;
+  btn.innerHTML = `Trabajos${pend ? '<span class="dot"></span>' : ''}`;
+  if (!ts.length) { el.innerHTML = '<div class="card"><p class="mut center">No hay trabajos en tu unidad.</p></div>'; return; }
+  el.innerHTML = `<div class="card">${ts.map((t) => {
+    const [est, cls] = EST_TRAB[t.estado] || [t.estado, ''];
+    return `<div class="trab">
+      <div class="row" style="border:0;padding:0 0 4px"><b>${esc(t.titulo)}</b><span class="pill ${cls}">${est}</span></div>
+      <div class="mut" style="font-size:12px">${esc(t.unidad)} · ${esc(t.consorcio)}${t.fecha_realizado ? ` · realizado el ${fdate(t.fecha_realizado)}` : ` · aviso del ${fdate(t.fecha_aviso)}`}${t.proveedor ? ` · ${esc(t.proveedor)}` : ''}</div>
+      ${t.descripcion ? `<div class="c" style="font-size:14px;white-space:pre-wrap;margin:8px 0">${esc(t.descripcion)}</div>` : ''}
+      ${t.archivo_url ? `<a href="${t.archivo_url}" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:var(--teal-d)">📄 Ver presupuesto / comprobante</a>` : ''}
+      ${t.monto > 0 ? `<div class="row"><span class="mut">A tu cargo (${esc(t.a_cargo)})</span><b>${fmt(t.monto)}</b></div>
+        ${t.pagado > 0 ? `<div class="row"><span class="mut">Pagado</span><span>${fmt(t.pagado)}</span></div>` : ''}
+        <div class="row"><span class="mut">Saldo</span><b style="color:${t.saldo > 0.01 ? 'var(--red)' : 'var(--green)'}">${t.saldo > 0.01 ? fmt(t.saldo) : 'Sin saldo'}</b></div>` : ''}
+      ${t.observacion_propietario ? `<div class="msg info" style="margin:8px 0 0">Tu observación: ${esc(t.observacion_propietario)}</div>` : ''}
+      ${t.estado === 'realizado' || t.estado === 'avisado' ? `<div style="margin-top:10px">
+        <button class="primary" data-conf="${t.id}">Confirmo que el trabajo se realizó</button>
+        <button class="ghost" data-obs="${t.id}">Tengo una observación</button>
+        <div id="obs-${t.id}" class="hidden"><textarea id="obs-txt-${t.id}" rows="3" placeholder="Contanos qué pasó (no se hizo, quedó incompleto, el importe no es el acordado…)"></textarea><button class="ghost" data-obs-enviar="${t.id}">Enviar observación</button></div>
+      </div>` : ''}
+    </div>`; }).join('')}</div>`;
+  const enviar = async (id, ok) => {
+    const obs = ok ? '' : ($(`obs-txt-${id}`)?.value || '').trim();
+    if (!ok && !obs) { alert('Escribí la observación.'); return; }
+    try { await portal({ accion: 'confirmar-trabajo', id, ok, observacion: obs }); await cargarHome(); if (window.vistaTab) vistaTab('trabajos'); }
+    catch (e) { alert(e.message); }
+  };
+  el.querySelectorAll('[data-conf]').forEach((b) => b.addEventListener('click', () => enviar(b.dataset.conf, true)));
+  el.querySelectorAll('[data-obs]').forEach((b) => b.addEventListener('click', () => $(`obs-${b.dataset.obs}`).classList.toggle('hidden')));
+  el.querySelectorAll('[data-obs-enviar]').forEach((b) => b.addEventListener('click', () => enviar(b.dataset.obsEnviar, false)));
+}
+
 const CAT_TEL = { emergencias: 'Emergencias', servicios: 'Servicios', encargado: 'Encargado', consejo: 'Consejo de propietarios', proveedor: 'Proveedores', otros: 'Otros' };
 function renderAdmin() {
   const a = datos.administracion || {};
@@ -155,10 +192,12 @@ function renderAdmin() {
 }
 
 // ---------------- Tabs ----------------
-document.querySelectorAll('.tabs button').forEach((b) => b.onclick = () => {
-  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
-  for (const t of ['expensas', 'comunicados', 'info', 'avisos']) $(`tab-${t}`).classList.toggle('hidden', t !== b.dataset.tab);
-});
+function vistaTab(nombre) {
+  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('on', x.dataset.tab === nombre));
+  for (const t of ['expensas', 'comunicados', 'trabajos', 'info', 'avisos']) $(`tab-${t}`).classList.toggle('hidden', t !== nombre);
+}
+window.vistaTab = vistaTab;
+document.querySelectorAll('.tabs button').forEach((b) => b.onclick = () => vistaTab(b.dataset.tab));
 
 // ---------------- Instalación y push ----------------
 const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
