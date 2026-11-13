@@ -101,7 +101,7 @@ export default function Header() {
               Solicitar presupuesto
             </a>
             <a
-              href="/portal/"
+              href="https://consorcios.gestionintegra.com.ar/"
               className="flex items-center gap-1.5 bg-teal-500 text-white px-5 py-2.5 rounded-md font-bold text-xs uppercase hover:bg-teal-400 transition-colors"
             >
               <UserCircle className="w-4 h-4" /> Acceso propietarios
@@ -125,7 +125,7 @@ export default function Header() {
                 {item.label}
               </a>
             ))}
-            <a href="/portal/" onClick={closeAll} className="flex items-center justify-center gap-2 bg-teal-500 text-white py-2.5 rounded-md font-bold uppercase tracking-wide">
+            <a href="https://consorcios.gestionintegra.com.ar/" onClick={closeAll} className="flex items-center justify-center gap-2 bg-teal-500 text-white py-2.5 rounded-md font-bold uppercase tracking-wide">
               <UserCircle className="w-4 h-4" /> Acceso propietarios
             </a>
             <div className="border-t border-white/10 pt-3 flex flex-col gap-2">
